@@ -1,0 +1,49 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model AgentConfig {
+  id                        String   @id @default(uuid())
+  system_prompt             String
+  response_eagerness        Float
+  interruption_sensitivity  Float
+  denoising_enabled         Boolean
+  voice_provider            String
+  updated_at                DateTime @updatedAt
+}
+
+model Contact {
+  id             String         @id @default(uuid())
+  name           String
+  phone          String
+  email          String?
+  status         String         @default("active") 
+  last_contacted DateTime?
+  campaign_id    String?
+  campaign       Campaign?      @relation(fields: [campaign_id], references: [id])
+  follow_ups     FollowUpItem[]
+}
+
+model Campaign {
+  id            String    @id @default(uuid())
+  name          String
+  agent_id      String
+  status        String    @default("active") 
+  created_at    DateTime  @default(now())
+  contacts      Contact[]
+}
+
+model FollowUpItem {
+  id            String   @id @default(uuid())
+  contact_id    String
+  contact       Contact  @relation(fields: [contact_id], references: [id])
+  objection     String
+  callback_time DateTime
+  priority      String   
+  status        String   @default("pending") 
+  call_id       String
+}
